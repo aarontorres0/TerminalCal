@@ -26,7 +26,7 @@
 1. Install the necessary dependencies:
 
    ```
-   pip3 install pytz requests ics
+   pip3 install -r requirements.txt
    ```
 
 1. Run the application:
