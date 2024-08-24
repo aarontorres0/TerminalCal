@@ -34,6 +34,29 @@ def format_datetime(dt, timezone="UTC"):
     return f"{date_str} {time_str}"
 
 
+def print_events(events, timezone, event_type):
+    if not events:
+        no_events_message = (
+            "No Past Events" if "Past" in event_type else "No Upcoming Events"
+        )
+        padding = int((40 - len(no_events_message)) / 2) - 1
+        print("\n")
+        print("-" * 40)
+        print("|" + " " * padding + no_events_message + " " * padding + "|")
+        print("-" * 40)
+    else:
+        print(f"\n{event_type} Events:")
+        print("-" * 40)
+        for event in events:
+            start_time = format_datetime(event.begin, timezone)
+            end_time = format_datetime(event.end, timezone)
+            print(f"Name: {event.name}")
+            print(f"Date: {start_time.split(' ')[0]}")
+            print(f"Start Time: {start_time.split(' ')[1]}")
+            print(f"End Time: {end_time.split(' ')[1]}")
+            print("-" * 40)
+
+
 def list_upcoming_events(ics_url, downloading_events):
     events = fetch_events(ics_url)
     if not events:
@@ -46,22 +69,8 @@ def list_upcoming_events(ics_url, downloading_events):
 
     if downloading_events:
         return upcoming_events
-    elif not upcoming_events:
-        print("\n")
-        print("-" * 40)
-        print("|" + " " * 10 + "NO UPCOMING EVENTS" + " " * 10 + "|")
-        print("-" * 40)
     else:
-        print("\nUpcoming Events:")
-        print("-" * 40)
-        for event in upcoming_events:
-            start_time = format_datetime(event.begin, timezone)
-            end_time = format_datetime(event.end, timezone)
-            print(f"Name: {event.name}")
-            print(f"Date: {start_time.split(' ')[0]}")
-            print(f"Start Time: {start_time.split(' ')[1]}")
-            print(f"End Time: {end_time.split(' ')[1]}")
-            print("-" * 40)
+        print_events(upcoming_events, timezone, "Upcoming")
 
 
 def list_past_events(ics_url, downloading_events):
@@ -76,22 +85,18 @@ def list_past_events(ics_url, downloading_events):
 
     if downloading_events:
         return past_events
-    elif not past_events:
-        print("\n")
-        print("-" * 40)
-        print("|" + " " * 12 + "NO PAST EVENTS" + " " * 12 + "|")
-        print("-" * 40)
     else:
-        print("\nPast Events:")
-        print("-" * 40)
-        for event in past_events:
-            start_time = format_datetime(event.begin, timezone)
-            end_time = format_datetime(event.end, timezone)
-            print(f"Name: {event.name}")
-            print(f"Date: {start_time.split(' ')[0]}")
-            print(f"Start Time: {start_time.split(' ')[1]}")
-            print(f"End Time: {end_time.split(' ')[1]}")
-            print("-" * 40)
+        print_events(past_events, timezone, "Past")
+
+
+def write_event_details(timezone, file, event):
+    start_time = format_datetime(event.begin, timezone)
+    end_time = format_datetime(event.end, timezone)
+    file.write(f"\nName: {event.name}\n")
+    file.write(f"Date: {start_time.split(' ')[0]}\n")
+    file.write(f"Start Time: {start_time.split(' ')[1]}\n")
+    file.write(f"End Time: {end_time.split(' ')[1]}\n")
+    file.write("-" * 40)
 
 
 def download_upcoming_events(ics_url, filename="upcoming_events.txt"):
@@ -101,13 +106,7 @@ def download_upcoming_events(ics_url, filename="upcoming_events.txt"):
         file.write("Upcoming Events:\n")
         file.write("-" * 40)
         for event in events:
-            start_time = format_datetime(event.begin, timezone)
-            end_time = format_datetime(event.end, timezone)
-            file.write(f"\nName: {event.name}\n")
-            file.write(f"Date: {start_time.split(' ')[0]}\n")
-            file.write(f"Start Time: {start_time.split(' ')[1]}\n")
-            file.write(f"End Time: {end_time.split(' ')[1]}\n")
-            file.write("-" * 40)
+            write_event_details(timezone, file, event)
     print(f"Upcoming events downloaded to {filename}")
 
 
@@ -118,11 +117,5 @@ def download_past_events(ics_url, filename="past_events.txt"):
         file.write("Past Events:\n")
         file.write("-" * 40)
         for event in events:
-            start_time = format_datetime(event.begin, timezone)
-            end_time = format_datetime(event.end, timezone)
-            file.write(f"\nName: {event.name}\n")
-            file.write(f"Date: {start_time.split(' ')[0]}\n")
-            file.write(f"Start Time: {start_time.split(' ')[1]}\n")
-            file.write(f"End Time: {end_time.split(' ')[1]}\n")
-            file.write("-" * 40)
+            write_event_details(timezone, file, event)
     print(f"Past events downloaded to {filename}")
