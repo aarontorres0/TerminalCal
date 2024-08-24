@@ -13,7 +13,7 @@ def main():
         print("4. View Saved .ics URL")
         print("q. Quit")
         print("\n")
-        choice = input("Choose an option: ")
+        choice = input("Choose an option: ").strip()
 
         if choice == '1':
             if ics_url:
@@ -26,7 +26,7 @@ def main():
             else:
                 print("No .ics URL is saved. Please save a URL first.")
         elif choice == '3':
-            ics_url_input = input("Enter the .ics URL: ")
+            ics_url_input = input("Enter the .ics URL: ").strip()
             save_ics_url(ics_url_input)
             ics_url = load_ics_url()
             print(f".ics URL '{ics_url_input}' saved.")
