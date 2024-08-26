@@ -20,7 +20,7 @@
 
    ```
    python3 -m venv venv
-   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   source venv/bin/activate
    ```
 
 1. Install the necessary dependencies:
@@ -35,8 +35,9 @@
    python3 main.py
    ```
 
-1. (Optional) To deactivate the virtual environment when you're done:
+1. (Optional) To deactivate the virtual environment and remove it when you're done:
 
    ```
    deactivate
+   rm -rf venv
    ```
