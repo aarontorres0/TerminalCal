@@ -19,7 +19,9 @@ def fetch_events(ics_url):
     try:
         response = requests.get(ics_url)
         response.raise_for_status()
-        return Calendar(response.text).events
+        events_set = Calendar(response.text).events
+        events_list = list(events_set)
+        return events_list
     except requests.exceptions.RequestException as e:
         print(f"Request error: {e}")
     except Exception as e:
@@ -56,6 +58,7 @@ def print_events(events, timezone, event_type):
             print(f"End Time: {end_time.split(' ')[1]}")
             print("-" * 40)
 
+
 def write_event_details(timezone, file, event):
     start_time = format_datetime(event.begin, timezone)
     end_time = format_datetime(event.end, timezone)
@@ -65,62 +68,11 @@ def write_event_details(timezone, file, event):
     file.write(f"End Time: {end_time.split(' ')[1]}\n")
     file.write("-" * 40)
 
-def list_upcoming_events(ics_url, downloading_events):
-    events = fetch_events(ics_url)
-    if not events:
-        print("No events found or failed to fetch events.")
-        return
-
-    timezone = "America/New_York"
-    now = datetime.datetime.now(pytz.timezone(timezone))
-    upcoming_events = [event for event in events if event.begin > now]
-
-    if downloading_events:
-        return upcoming_events
-    else:
-        print_events(upcoming_events, timezone, "Upcoming")
-
-
-def list_past_events(ics_url, downloading_events):
-    events = fetch_events(ics_url)
-    if not events:
-        print("No events found or failed to fetch events.")
-        return
-
-    timezone = "America/New_York"
-    now = datetime.datetime.now(pytz.timezone(timezone))
-    past_events = [event for event in events if event.end < now]
-
-    if downloading_events:
-        return past_events
-    else:
-        print_events(past_events, timezone, "Past")
-
-
-def download_upcoming_events(ics_url, filename="upcoming_events.txt"):
-    events = list_upcoming_events(ics_url, True)
-    timezone = "America/New_York"
-    with open(filename, "w") as file:
-        file.write("Upcoming Events:\n")
-        file.write("-" * 40)
-        for event in events:
-            write_event_details(timezone, file, event)
-    print(f"Upcoming events downloaded to {filename}")
-
-
-def download_past_events(ics_url, filename="past_events.txt"):
-    events = list_past_events(ics_url, True)
-    timezone = "America/New_York"
-    with open(filename, "w") as file:
-        file.write("Past Events:\n")
-        file.write("-" * 40)
-        for event in events:
-            write_event_details(timezone, file, event)
-    print(f"Past events downloaded to {filename}")
-
 
 def list_upcoming_events(ics_url, downloading_events, timezone):
     events = fetch_events(ics_url)
+    events.sort(key=lambda x: x.begin)
+
     if not events:
         print("No events found or failed to fetch events.")
         return
@@ -136,6 +88,8 @@ def list_upcoming_events(ics_url, downloading_events, timezone):
 
 def list_past_events(ics_url, downloading_events, timezone):
     events = fetch_events(ics_url)
+    events.sort(key=lambda x: x.begin)
+
     if not events:
         print("No events found or failed to fetch events.")
         return
